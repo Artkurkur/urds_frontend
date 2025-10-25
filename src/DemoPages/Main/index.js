@@ -1,8 +1,8 @@
 import React, { Fragment } from "react";
 import { connect } from "react-redux";
 import cx from "classnames";
-
 import { useResizeDetector } from "react-resize-detector";
+import { useLocation } from "react-router-dom";
 
 import AppMain from "../../Layout/AppMain";
 import AppHeader from "../../Layout/AppHeader";
@@ -11,8 +11,6 @@ import AppFooter from "../../Layout/AppFooter";
 import ThemeOptions from "../../Layout/ThemeOptions";
 
 const Main = (props) => {
-  // Note: closedSmallerSidebar state removed as it was unused
-
   const {
     colorScheme,
     enableFixedHeader,
@@ -24,6 +22,11 @@ const Main = (props) => {
   } = props;
 
   const { width, ref } = useResizeDetector();
+  const location = useLocation();
+
+  // ✅ Detect if AppMain is currently rendered
+  // (you can adjust this later if you have multiple layouts)
+  const isAppMainRoute = location.pathname === "/";
 
   return (
     <Fragment>
@@ -36,20 +39,23 @@ const Main = (props) => {
             { "fixed-sidebar": enableFixedSidebar || width < 992 },
             { "fixed-footer": enableFixedFooter },
             { "closed-sidebar": enableClosedSidebar || width < 992 },
-            {
-              "closed-sidebar-mobile": width < 992,
-            },
+            { "closed-sidebar-mobile": width < 992 },
             { "sidebar-mobile-open": enableMobileMenu },
             { "body-tabs-shadow-btn": enablePageTabsAlt }
-          )}>
-          <AppHeader />
+          )}
+        >
+          {/* ✅ Only show header/sidebar/footer if not on AppMain */}
+          {!isAppMainRoute && <AppHeader />}
+
           <div className="app-main">
-            <AppSidebar />
+            {!isAppMainRoute && <AppSidebar />}
+
             <div className="app-main__outer">
               <div className="app-main__inner">
                 <AppMain />
               </div>
-              <AppFooter />
+
+              {!isAppMainRoute && <AppFooter />}
             </div>
           </div>
         </div>
